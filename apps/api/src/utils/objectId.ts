@@ -13,3 +13,10 @@ export function isValidObjectId(id: string): boolean {
 export function normalizeTitle(title: string): string {
   return title.trim().toLowerCase();
 }
+
+/**
+ * Normalizes a cinema name for case-insensitive and whitespace-trimmed uniqueness.
+ */
+export function normalizeName(name: string): string {
+  return name.trim().toLowerCase();
+}

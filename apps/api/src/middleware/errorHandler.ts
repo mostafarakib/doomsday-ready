@@ -43,11 +43,16 @@ export function errorHandler(
   // Mongoose duplicate key
   if (isMongooseDuplicateKeyError(err)) {
     const errorObj = err as { keyPattern?: Record<string, unknown> };
-    const code = errorObj.keyPattern?.normalizedTitle ? 'DUPLICATE_TITLE' : 'DUPLICATE';
-    const message =
-      code === 'DUPLICATE_TITLE'
-        ? 'A movie with this title already exists.'
-        : 'A resource with that value already exists.';
+    let code = 'DUPLICATE';
+    let message = 'A resource with that value already exists.';
+
+    if (errorObj.keyPattern?.normalizedTitle) {
+      code = 'DUPLICATE_TITLE';
+      message = 'A movie with this title already exists.';
+    } else if (errorObj.keyPattern?.normalizedName) {
+      code = 'DUPLICATE_NAME';
+      message = 'A cinema with this name already exists.';
+    }
 
     res.status(409).json({
       success: false,
