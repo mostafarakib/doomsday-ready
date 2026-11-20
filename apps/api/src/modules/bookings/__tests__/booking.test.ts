@@ -271,6 +271,48 @@ describe('Booking API — Phase 5: Persistence & Backend Completion', () => {
       expect(targetBooking.totalBundles).toBe(4);
       expect(targetBooking.totalSeats).toBe(11);
     });
+
+    it('preserves saved booking snapshot even if the cinema is deleted from the database', async () => {
+      // 1. Create cinema
+      const cinema = await Cinema.create({
+        name: 'The Electric Cinema',
+        normalizedName: 'the electric cinema',
+        bundleSizes: [3, 4],
+      });
+
+      // 2. Create booking snapshot
+      const bookingRes = await request(app).post('/api/bookings').send({
+        cinemaId: cinema._id.toString(),
+        groupSize: 7,
+      });
+      expect(bookingRes.status).toBe(201);
+      const bookingId = bookingRes.body.data._id;
+
+      // 3. Delete the cinema record completely
+      await Cinema.findByIdAndDelete(cinema._id);
+
+      // Verify cinema is indeed gone
+      const deletedCinema = await Cinema.findById(cinema._id);
+      expect(deletedCinema).toBeNull();
+
+      // 4. Retrieve bookings list
+      const listRes = await request(app).get('/api/bookings');
+      expect(listRes.status).toBe(200);
+
+      const targetBooking = listRes.body.data.find((b: { _id: string }) => b._id === bookingId);
+      expect(targetBooking).toBeDefined();
+
+      // Snapshot values remain intact
+      expect(targetBooking.cinemaName).toBe('The Electric Cinema');
+      expect(targetBooking.bundleSizes).toEqual([3, 4]);
+      expect(targetBooking.bundleBreakdown).toEqual([
+        { size: 4, quantity: 1 },
+        { size: 3, quantity: 1 },
+      ]);
+      expect(targetBooking.totalBundles).toBe(2);
+      expect(targetBooking.totalSeats).toBe(7);
+      expect(targetBooking.status).toBe('saved');
+    });
   });
 
   describe('GET /api/bookings', () => {
