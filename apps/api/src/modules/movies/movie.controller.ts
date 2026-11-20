@@ -49,3 +49,19 @@ export async function updateMovieHandler(
     next(error);
   }
 }
+
+export async function getRewatchOrderHandler(
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const plan = await movieService.getRewatchOrder(req.params.id);
+    res.status(200).json({
+      success: true,
+      data: plan,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
