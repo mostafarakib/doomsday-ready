@@ -45,11 +45,6 @@ export interface BookingPlan {
   updatedAt: string;
 }
 
-export interface CreateBookingInput {
-  cinemaId: string;
-  groupSize: number;
-}
-
 export interface CreateCinemaInput {
   name: string;
   bundleSizes: number[];

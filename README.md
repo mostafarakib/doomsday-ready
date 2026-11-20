@@ -43,7 +43,7 @@ A full-stack web application designed for Marvel Cinematic Universe (MCU) fans p
 - **Exact Minimum-Bundle Optimization**: Computes the optimal combination of seat bundles that sums to exactly the requested group size (1 to 10,000) using bottom-up dynamic programming (unbounded knapsack).
 - **Deterministic Tie-Breaking**: When multiple combinations produce the same minimum bundle count, larger bundles are prioritized.
 - **Impossible Combinations**: Clearly identifies when no exact combination can sum to the group size (`possible: false`).
-- **Immutable Snapshot Persistence**: Persist calculated quotes as saved booking plans. Booking snapshots preserve cinema name and bundle configurations at the time of calculation, ensuring future cinema updates or deletions never corrupt historical booking records.
+- **Client-Side Booking Plan Persistence**: Persist calculated quotes directly to browser `localStorage` using a versioned key (`doomsday-ready-bookings-v1`). Because the application does not have user accounts, client-side persistence provides profile isolation across different browsers and profiles. Booking snapshots preserve cinema name, bundle sizes, group size, bundle breakdown, and totals at the time of calculation.
 
 ---
 
@@ -71,8 +71,7 @@ doomsday-ready/
 │   │   │   ├── middleware/            # Error handling, validation, not-found
 │   │   │   ├── modules/
 │   │   │   │   ├── movies/            # Movie model, service, controller, graph algorithms, tests
-│   │   │   │   ├── cinemas/           # Cinema model, service, controller, DP algorithm, tests
-│   │   │   │   └── bookings/          # Booking model, service, controller, tests
+│   │   │   │   └── cinemas/           # Cinema model, service, controller, DP algorithm, tests
 │   │   │   ├── routes/                # Health check and top-level routes
 │   │   │   ├── scripts/               # Optional database seed script
 │   │   │   ├── utils/                 # ObjectId helpers
@@ -90,6 +89,7 @@ doomsday-ready/
 │       │   │   ├── movies/            # Movie card, movie form modal, stats overview
 │       │   │   ├── rewatch/           # Rewatch movie item list with watched toggle
 │       │   │   └── ui/                # Button, modal, alert, badge primitives
+│       │   ├── lib/                   # LocalStorage persistence helpers and tests
 │       │   ├── pages/                 # LandingPage, MoviesPage, RewatchPlanPage, BookingPage
 │       │   ├── types/                 # Frontend TypeScript API contracts
 │       │   ├── App.tsx                # App routing configuration
@@ -132,23 +132,12 @@ erDiagram
         date updatedAt
     }
 
-    Booking {
-        ObjectId _id PK
-        ObjectId cinema "FK to Cinema"
-        string cinemaName "Snapshot of cinema name"
-        int groupSize "1 to 10,000"
-        int[] bundleSizes "Snapshot of bundle sizes used"
-        object[] bundleBreakdown "[{ size, quantity }]"
-        int totalBundles "Sum of bundle quantities"
-        int totalSeats "Sum of size * quantity (equals groupSize)"
-        string status "Default 'saved'"
-        date createdAt
-        date updatedAt
-    }
-
     Movie ||--o{ Movie : "requires (prerequisites)"
-    Cinema ||--o{ Booking : "referenced by"
 ```
+
+> [!NOTE]
+> **Saved Booking Plans Persistence**:
+> To support independent user profiles without requiring an authentication system, saved booking plans are persisted entirely in the browser's `localStorage` under the versioned key `doomsday-ready-bookings-v1`. Each saved record stores a complete, immutable snapshot of the cinema configuration, group size, bundle breakdown, total bundles, and total seats.
 
 ---
 
@@ -336,8 +325,6 @@ All endpoints are prefixed with `/api` and return standardized JSON response env
 | `GET` | `/cinemas` | List all cinemas | None | `200` |
 | `POST` | `/cinemas` | Create a new cinema | `{ name, bundleSizes }` | `201`, `400`, `409` |
 | `GET` | `/cinemas/:id/booking?groupSize=X` | Calculate minimum bundle quote | Query: `groupSize` (1–10,000) | `200`, `400`, `404` |
-| `GET` | `/bookings` | List saved booking plans (newest first) | None | `200` |
-| `POST` | `/bookings` | Calculate and persist a booking plan | `{ cinemaId, groupSize }` | `201`, `400`, `404` |
 
 ---
 

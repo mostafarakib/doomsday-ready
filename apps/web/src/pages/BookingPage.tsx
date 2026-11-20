@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Cinema, BookingQuote, BookingPlan } from '../types/booking.ts';
 import { bookingApi } from '../api/bookings.ts';
+import { bookingStorage } from '../lib/bookingStorage.ts';
 import { Layout } from '../components/Layout.tsx';
 import { BookingQuoteCard } from '../components/booking/BookingQuoteCard.tsx';
 import { SavedBookingCard } from '../components/booking/SavedBookingCard.tsx';
@@ -44,14 +45,14 @@ export default function BookingPage() {
     }
   }, [selectedCinemaId]);
 
-  // 2. Fetch saved bookings
-  const fetchSavedBookings = useCallback(async () => {
+  // 2. Load saved bookings from browser localStorage
+  const fetchSavedBookings = useCallback(() => {
     try {
       setIsLoadingBookings(true);
-      const data = await bookingApi.getBookings();
+      const data = bookingStorage.getSavedBookings();
       setSavedBookings(data);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch saved booking plans.');
+      setError(err instanceof Error ? err.message : 'Failed to load saved booking plans.');
     } finally {
       setIsLoadingBookings(false);
     }
@@ -99,19 +100,16 @@ export default function BookingPage() {
     calculateQuote(selectedCinemaId, groupSizeInput);
   }
 
-  // 4. Save booking plan
-  async function handleSaveBooking() {
+  // 4. Save booking plan snapshot to browser localStorage
+  async function handleSaveBooking(): Promise<void> {
     if (!quote || !quote.possible) return;
 
     try {
       setIsSaving(true);
       setError(null);
 
-      // Submit only cinema ID and group size to POST /api/bookings
-      await bookingApi.saveBooking({
-        cinemaId: quote.cinemaId,
-        groupSize: quote.groupSize,
-      });
+      // Persist snapshot immediately to localStorage
+      bookingStorage.saveBookingPlan(quote, activeCinema?.bundleSizes || []);
 
       showNotification(
         'success',
@@ -119,7 +117,7 @@ export default function BookingPage() {
       );
 
       // Refresh saved plans list
-      await fetchSavedBookings();
+      fetchSavedBookings();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to save booking plan.';
       showNotification('error', msg);
@@ -261,11 +259,10 @@ export default function BookingPage() {
                         setGroupSizeInput(size.toString());
                         setQuote(null);
                       }}
-                      className={`text-xs px-2.5 py-1 rounded border transition-colors cursor-pointer ${
-                        groupSizeInput === size.toString()
-                          ? 'bg-[#2a2a2a] text-white border-[#444444]'
-                          : 'bg-[#181818] text-[#888888] border-[#262626] hover:text-[#f5f5f5] hover:bg-[#202020]'
-                      }`}
+                      className={`text-xs px-2.5 py-1 rounded border transition-colors cursor-pointer ${groupSizeInput === size.toString()
+                        ? 'bg-[#2a2a2a] text-white border-[#444444]'
+                        : 'bg-[#181818] text-[#888888] border-[#262626] hover:text-[#f5f5f5] hover:bg-[#202020]'
+                        }`}
                     >
                       {size}
                     </button>
