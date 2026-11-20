@@ -4,6 +4,7 @@ import { env } from './config/env.js';
 import healthRouter from './routes/health.js';
 import movieRouter from './modules/movies/movie.routes.js';
 import cinemaRouter from './modules/cinemas/cinema.routes.js';
+import bookingRouter from './modules/bookings/booking.routes.js';
 import { notFoundHandler } from './middleware/notFound.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use('/api', healthRouter);
 app.use('/api/movies', movieRouter);
 app.use('/api/cinemas', cinemaRouter);
+app.use('/api/bookings', bookingRouter);
 
 // --- Fallback middleware (order matters: 404 before error handler) ---
 app.use(notFoundHandler);
