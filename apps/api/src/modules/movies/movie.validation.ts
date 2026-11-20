@@ -33,6 +33,12 @@ export const createMovieSchema = z
         'Duplicate prerequisite IDs are not allowed',
       ),
     watched: z.boolean().optional().default(false),
+    posterUrl: z
+      .string()
+      .trim()
+      .url('Poster URL must be a valid URL')
+      .optional()
+      .or(z.literal('')),
   })
   .strict();
 
@@ -63,6 +69,13 @@ export const updateMovieSchema = z
         'Duplicate prerequisite IDs are not allowed',
       ),
     watched: z.boolean().optional(),
+    posterUrl: z
+      .string()
+      .trim()
+      .url('Poster URL must be a valid URL')
+      .nullable()
+      .optional()
+      .or(z.literal('')),
   })
   .strict()
   .refine((data) => Object.keys(data).length > 0, {

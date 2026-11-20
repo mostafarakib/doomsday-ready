@@ -15,6 +15,7 @@ export function RewatchMovieItem({
   onToggleWatched,
 }: RewatchMovieItemProps) {
   const [isToggling, setIsToggling] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   async function handleToggle() {
     try {
@@ -55,28 +56,47 @@ export function RewatchMovieItem({
         }`}
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-[#222222] text-[#888888]">
-                Step #{stepNumber}
-              </span>
-              <h4
-                className={`text-base font-bold ${
-                  movie.watched
-                    ? 'text-emerald-100 line-through decoration-emerald-600/60'
-                    : 'text-white'
-                }`}
-              >
-                {movie.title}
-              </h4>
+          <div className="flex items-center gap-3.5 min-w-0">
+            {/* Poster Thumbnail */}
+            <div className="w-12 sm:w-14 shrink-0 aspect-[2/3] rounded-md overflow-hidden bg-[#202020] border border-[#2c2c2c] relative shadow-inner">
+              {movie.posterUrl && !imageError ? (
+                <img
+                  src={movie.posterUrl}
+                  alt={`${movie.title} poster`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-[#1a1a1a] text-[#555555]">
+                  <span className="text-sm select-none">🎬</span>
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center gap-3 text-xs text-[#888888] mt-1.5">
-              <span>📅 {movie.releaseYear}</span>
-              <span>•</span>
-              <span>
-                ⏱️ {runtimeFormatted} ({movie.runtime} min)
-              </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-[#222222] text-[#888888]">
+                  Step #{stepNumber}
+                </span>
+                <h4
+                  className={`text-base font-bold truncate ${
+                    movie.watched
+                      ? 'text-emerald-100 line-through decoration-emerald-600/60'
+                      : 'text-white'
+                  }`}
+                >
+                  {movie.title}
+                </h4>
+              </div>
+
+              <div className="flex items-center gap-3 text-xs text-[#888888] mt-1">
+                <span>📅 {movie.releaseYear}</span>
+                <span>•</span>
+                <span>
+                  ⏱️ {runtimeFormatted} ({movie.runtime} min)
+                </span>
+              </div>
             </div>
           </div>
 

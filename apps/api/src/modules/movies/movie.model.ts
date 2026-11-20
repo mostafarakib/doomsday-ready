@@ -7,6 +7,7 @@ export interface IMovie {
   runtime: number;
   prerequisites: Types.ObjectId[];
   watched: boolean;
+  posterUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +47,10 @@ const movieSchema = new Schema<IMovie>(
     watched: {
       type: Boolean,
       default: false,
+    },
+    posterUrl: {
+      type: String,
+      trim: true,
     },
   },
   {

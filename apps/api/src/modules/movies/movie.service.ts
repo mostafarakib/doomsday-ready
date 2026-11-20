@@ -85,6 +85,7 @@ export async function createMovie(input: CreateMovieInput): Promise<IMovie> {
     runtime: input.runtime,
     prerequisites: (input.prerequisites || []) as unknown as Types.ObjectId[],
     watched: input.watched,
+    posterUrl: input.posterUrl || undefined,
   });
 
   return movie;
@@ -181,6 +182,9 @@ export async function updateMovie(id: string, input: UpdateMovieInput): Promise<
   }
   if (input.prerequisites !== undefined) {
     movie.prerequisites = input.prerequisites as unknown as Types.ObjectId[];
+  }
+  if (input.posterUrl !== undefined) {
+    movie.posterUrl = input.posterUrl ? input.posterUrl : undefined;
   }
 
   await movie.save();

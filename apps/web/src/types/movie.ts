@@ -6,6 +6,7 @@ export interface Movie {
   runtime: number;
   prerequisites: string[];
   watched: boolean;
+  posterUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -16,6 +17,7 @@ export interface CreateMovieInput {
   runtime: number;
   prerequisites?: string[];
   watched?: boolean;
+  posterUrl?: string;
 }
 
 export interface UpdateMovieInput {
@@ -24,6 +26,7 @@ export interface UpdateMovieInput {
   runtime?: number;
   prerequisites?: string[];
   watched?: boolean;
+  posterUrl?: string;
 }
 
 export interface RewatchPlan {

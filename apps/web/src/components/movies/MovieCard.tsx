@@ -12,6 +12,7 @@ export interface MovieCardProps {
 
 export function MovieCard({ movie, movieMap, onEdit, onToggleWatched }: MovieCardProps) {
   const [isToggling, setIsToggling] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   async function handleToggle() {
     try {
@@ -28,58 +29,82 @@ export function MovieCard({ movie, movieMap, onEdit, onToggleWatched }: MovieCar
     hours > 0 ? `${hours}h ${minutes > 0 ? `${minutes}m` : ''}` : `${minutes}m`;
 
   return (
-    <div className="rounded-xl border border-[#262626] bg-[#161616] p-5 flex flex-col justify-between hover:border-[#383838] transition-all group shadow-sm hover:shadow-md">
+    <div className="rounded-xl border border-[#262626] bg-[#161616] p-4 sm:p-5 flex flex-col justify-between hover:border-[#383838] transition-all group shadow-sm hover:shadow-md">
       <div>
-        {/* Top Header: Title and Watched Toggle */}
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <h3 className="text-lg font-bold text-[#f5f5f5] group-hover:text-white leading-snug">
-            {movie.title}
-          </h3>
-          <button
-            type="button"
-            onClick={handleToggle}
-            disabled={isToggling}
-            className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full border transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
-              movie.watched
-                ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60 hover:bg-emerald-900/60'
-                : 'bg-[#222222] text-[#888888] border-[#333333] hover:text-[#f5f5f5] hover:border-[#444444]'
-            }`}
-            title="Click to toggle watched status"
-          >
-            {isToggling ? (
-              <svg className="animate-spin h-3 w-3 text-current" fill="none" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
-            ) : movie.watched ? (
-              <span>✓</span>
+        {/* Top Header: Poster thumbnail and Details */}
+        <div className="flex gap-4 items-start mb-4">
+          {/* Movie Poster with consistent 2:3 aspect ratio & graceful fallback */}
+          <div className="w-20 sm:w-24 shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-[#202020] border border-[#2c2c2c] relative shadow-inner">
+            {movie.posterUrl && !imageError ? (
+              <img
+                src={movie.posterUrl}
+                alt={`${movie.title} poster`}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                loading="lazy"
+                onError={() => setImageError(true)}
+              />
             ) : (
-              <span>○</span>
+              <div className="w-full h-full flex flex-col items-center justify-center p-1 text-center bg-gradient-to-b from-[#1f1f1f] to-[#141414] text-[#666666]">
+                <span className="text-2xl mb-1 select-none">🎬</span>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-[#555555]">
+                  No Poster
+                </span>
+              </div>
             )}
-            <span>{movie.watched ? 'Watched' : 'Unwatched'}</span>
-          </button>
-        </div>
+          </div>
 
-        {/* Metadata: Release Year & Runtime */}
-        <div className="flex items-center gap-3 text-xs text-[#888888] mb-4">
-          <span className="flex items-center gap-1">
-            <span>📅</span> {movie.releaseYear}
-          </span>
-          <span>•</span>
-          <span className="flex items-center gap-1">
-            <span>⏱️</span> {runtimeFormatted} ({movie.runtime} min)
-          </span>
+          {/* Details Column */}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base sm:text-lg font-bold text-[#f5f5f5] group-hover:text-white leading-snug break-words mb-1.5">
+              {movie.title}
+            </h3>
+
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#888888] mb-3">
+              <span className="flex items-center gap-1">
+                <span>📅</span> {movie.releaseYear}
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <span>⏱️</span> {runtimeFormatted} ({movie.runtime}m)
+              </span>
+            </div>
+
+            {/* Watched Toggle button */}
+            <button
+              type="button"
+              onClick={handleToggle}
+              disabled={isToggling}
+              className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
+                movie.watched
+                  ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60 hover:bg-emerald-900/60'
+                  : 'bg-[#222222] text-[#888888] border-[#333333] hover:text-[#f5f5f5] hover:border-[#444444]'
+              }`}
+              title="Click to toggle watched status"
+            >
+              {isToggling ? (
+                <svg className="animate-spin h-3 w-3 text-current" fill="none" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+              ) : movie.watched ? (
+                <span>✓</span>
+              ) : (
+                <span>○</span>
+              )}
+              <span>{movie.watched ? 'Watched' : 'Unwatched'}</span>
+            </button>
+          </div>
         </div>
 
         {/* Prerequisites */}

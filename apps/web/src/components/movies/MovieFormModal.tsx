@@ -26,6 +26,7 @@ export function MovieFormModal({
   const [title, setTitle] = useState('');
   const [releaseYear, setReleaseYear] = useState('');
   const [runtime, setRuntime] = useState('');
+  const [posterUrl, setPosterUrl] = useState('');
   const [watched, setWatched] = useState(false);
   const [prerequisites, setPrerequisites] = useState<string[]>([]);
   const [searchPrereq, setSearchPrereq] = useState('');
@@ -39,12 +40,14 @@ export function MovieFormModal({
         setTitle(movieToEdit.title);
         setReleaseYear(movieToEdit.releaseYear.toString());
         setRuntime(movieToEdit.runtime.toString());
+        setPosterUrl(movieToEdit.posterUrl || '');
         setWatched(movieToEdit.watched);
         setPrerequisites([...movieToEdit.prerequisites]);
       } else {
         setTitle('');
         setReleaseYear(new Date().getFullYear().toString());
         setRuntime('120');
+        setPosterUrl('');
         setWatched(false);
         setPrerequisites([]);
       }
@@ -102,6 +105,8 @@ export function MovieFormModal({
     try {
       setIsSubmitting(true);
 
+      const trimmedPoster = posterUrl.trim();
+
       if (isEditing && movieToEdit) {
         const payload: UpdateMovieInput = {
           title: trimmedTitle,
@@ -109,6 +114,7 @@ export function MovieFormModal({
           runtime: parsedRuntime,
           watched,
           prerequisites,
+          posterUrl: trimmedPoster ? trimmedPoster : undefined,
         };
         await moviesApi.updateMovie(movieToEdit._id, payload);
       } else {
@@ -118,6 +124,7 @@ export function MovieFormModal({
           runtime: parsedRuntime,
           watched,
           prerequisites,
+          posterUrl: trimmedPoster ? trimmedPoster : undefined,
         };
         await moviesApi.createMovie(payload);
       }
@@ -209,6 +216,25 @@ export function MovieFormModal({
               className="w-full rounded-lg border border-[#2a2a2a] bg-[#111111] px-3.5 py-2 text-sm text-white placeholder-[#555555] focus:border-[#dc2626] focus:outline-none focus:ring-1 focus:ring-[#dc2626] transition-colors"
             />
           </div>
+        </div>
+
+        {/* Poster URL */}
+        <div>
+          <label
+            htmlFor="movie-poster"
+            className="block text-xs uppercase font-semibold text-[#a3a3a3] mb-1.5"
+          >
+            Poster Image URL{' '}
+            <span className="text-[#666666] font-normal normal-case">(optional, e.g. TMDB)</span>
+          </label>
+          <input
+            id="movie-poster"
+            type="url"
+            value={posterUrl}
+            onChange={(e) => setPosterUrl(e.target.value)}
+            placeholder="https://image.tmdb.org/t/p/w500/..."
+            className="w-full rounded-lg border border-[#2a2a2a] bg-[#111111] px-3.5 py-2 text-sm text-white placeholder-[#555555] focus:border-[#dc2626] focus:outline-none focus:ring-1 focus:ring-[#dc2626] transition-colors"
+          />
         </div>
 
         {/* Watched Status */}

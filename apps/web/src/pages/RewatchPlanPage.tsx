@@ -231,29 +231,50 @@ export default function RewatchPlanPage() {
         <div className="space-y-8">
           {/* Target Film Summary Hero */}
           <div className="rounded-xl border border-red-950/80 bg-gradient-to-r from-red-950/30 via-[#161616] to-[#161616] p-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[11px] uppercase tracking-wider font-bold bg-[#dc2626] text-white px-2 py-0.5 rounded">
-                    Target Destination
-                  </span>
-                  <span className="text-xs text-[#888888]">
-                    Excluded from prerequisite list below
-                  </span>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div className="flex items-center gap-4 min-w-0">
+                {/* Target Movie Poster with 2:3 aspect ratio */}
+                <div className="w-16 sm:w-20 shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-[#202020] border border-red-900/40 relative shadow-md">
+                  {plan.targetMovie.posterUrl ? (
+                    <img
+                      src={plan.targetMovie.posterUrl}
+                      alt={`${plan.targetMovie.title} poster`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-[#1a1a1a] text-[#555555]">
+                      <span className="text-2xl select-none">🎬</span>
+                    </div>
+                  )}
                 </div>
-                <h2 className="text-2xl font-black text-white">{plan.targetMovie.title}</h2>
-                <div className="flex items-center gap-3 text-xs text-[#888888] mt-1.5">
-                  <span>📅 Released: {plan.targetMovie.releaseYear}</span>
-                  <span>•</span>
-                  <span>⏱️ Runtime: {plan.targetMovie.runtime} min</span>
-                  <span>•</span>
-                  <span
-                    className={
-                      plan.targetMovie.watched ? 'text-emerald-400 font-medium' : 'text-[#888888]'
-                    }
-                  >
-                    Status: {plan.targetMovie.watched ? 'Watched' : 'Unwatched'}
-                  </span>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[11px] uppercase tracking-wider font-bold bg-[#dc2626] text-white px-2 py-0.5 rounded">
+                      Target Destination
+                    </span>
+                    <span className="text-xs text-[#888888]">
+                      Excluded from prerequisite list below
+                    </span>
+                  </div>
+                  <h2 className="text-2xl font-black text-white">{plan.targetMovie.title}</h2>
+                  <div className="flex items-center gap-3 text-xs text-[#888888] mt-1.5 flex-wrap">
+                    <span>📅 Released: {plan.targetMovie.releaseYear}</span>
+                    <span>•</span>
+                    <span>⏱️ Runtime: {plan.targetMovie.runtime} min</span>
+                    <span>•</span>
+                    <span
+                      className={
+                        plan.targetMovie.watched ? 'text-emerald-400 font-medium' : 'text-[#888888]'
+                      }
+                    >
+                      Status: {plan.targetMovie.watched ? 'Watched' : 'Unwatched'}
+                    </span>
+                  </div>
                 </div>
               </div>
 

@@ -10,13 +10,14 @@ dotenv.config({ path: path.resolve(process.cwd(), 'apps/api/.env') });
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/doomsday_ready';
 
-// Assessment MCU Movies
+// Assessment MCU Movies with TMDB metadata & verified poster assets
 const MCU_MOVIES = [
   {
     title: 'Iron Man',
     releaseYear: 2008,
     runtime: 126,
     watched: true,
+    posterUrl: 'https://image.tmdb.org/t/p/w500/78lPtwv72eTNqFW9COBYI0dWDJa.jpg',
     prereqTitles: [],
   },
   {
@@ -24,6 +25,7 @@ const MCU_MOVIES = [
     releaseYear: 2011,
     runtime: 124,
     watched: true,
+    posterUrl: 'https://image.tmdb.org/t/p/w500/vSNxAJTlD0r02V9sPYpOjqDZXUK.jpg',
     prereqTitles: [],
   },
   {
@@ -31,6 +33,7 @@ const MCU_MOVIES = [
     releaseYear: 2012,
     runtime: 143,
     watched: true,
+    posterUrl: 'https://image.tmdb.org/t/p/w500/RYMX2wcKCBAr24UyPD7xwmjaTn.jpg',
     prereqTitles: ['Iron Man', 'Captain America: The First Avenger'],
   },
   {
@@ -38,6 +41,7 @@ const MCU_MOVIES = [
     releaseYear: 2016,
     runtime: 147,
     watched: true,
+    posterUrl: 'https://image.tmdb.org/t/p/w500/rAGiXaUfPzY7CDEyNKUofk3Kw2e.jpg',
     prereqTitles: ['The Avengers', 'Captain America: The First Avenger'],
   },
   {
@@ -45,6 +49,7 @@ const MCU_MOVIES = [
     releaseYear: 2017,
     runtime: 130,
     watched: true,
+    posterUrl: 'https://image.tmdb.org/t/p/w500/rzRwTcFvttcN1ZpX2xv4j3tSdJu.jpg',
     prereqTitles: ['The Avengers'],
   },
   {
@@ -52,6 +57,7 @@ const MCU_MOVIES = [
     releaseYear: 2018,
     runtime: 149,
     watched: false,
+    posterUrl: 'https://image.tmdb.org/t/p/w500/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg',
     prereqTitles: ['Captain America: Civil War', 'Thor: Ragnarok'],
   },
   {
@@ -59,13 +65,18 @@ const MCU_MOVIES = [
     releaseYear: 2019,
     runtime: 181,
     watched: false,
+    posterUrl: 'https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg',
     prereqTitles: ['Avengers: Infinity War'],
   },
   {
     title: 'Avengers: Doomsday',
     releaseYear: 2026,
+    // Note: Official theatrical runtime is not yet finalized or officially published
+    // on TMDB (ID 1003596) for this upcoming 2026 production. 180 minutes is a provisional
+    // assessment placeholder satisfying the Movie model constraint (1-300 min).
     runtime: 180,
     watched: false,
+    posterUrl: 'https://image.tmdb.org/t/p/w500/cWXtJhrlruF8CeYuaBGE8vdj3Q9.jpg',
     prereqTitles: ['Avengers: Endgame'],
   },
 ];
@@ -119,12 +130,20 @@ async function seed(): Promise<void> {
           releaseYear: m.releaseYear,
           runtime: m.runtime,
           watched: m.watched,
+          posterUrl: m.posterUrl,
           prerequisites: [],
         });
         newlyCreatedTitles.add(m.title);
         console.info(`  Created movie: "${m.title}"`);
       } else {
-        console.info(`  Found existing movie: "${doc.title}" (preserving user data)`);
+        // If existing movie lacks posterUrl, populate it while preserving user data
+        if (!doc.posterUrl && m.posterUrl) {
+          doc.posterUrl = m.posterUrl;
+          await doc.save();
+          console.info(`  Updated poster for existing movie: "${doc.title}"`);
+        } else {
+          console.info(`  Found existing movie: "${doc.title}" (preserving user data)`);
+        }
       }
       movieDocMap.set(m.title, doc._id as mongoose.Types.ObjectId);
     }

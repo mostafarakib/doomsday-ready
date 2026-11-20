@@ -118,6 +118,7 @@ erDiagram
         int runtime "1 to 300 minutes"
         ObjectId[] prerequisites "FK to Movie[]"
         boolean watched "Default false"
+        string posterUrl "Optional TMDB poster URL"
         date createdAt
         date updatedAt
     }
@@ -329,14 +330,26 @@ All endpoints are prefixed with `/api` and return standardized JSON response env
 |---|---|---|---|---|
 | `GET` | `/health` | Server and database status | None | `200` |
 | `GET` | `/movies` | List all movies | None | `200` |
-| `POST` | `/movies` | Create a new movie | `{ title, releaseYear, runtime, prerequisites?, watched? }` | `201`, `400`, `409` |
-| `PATCH` | `/movies/:id` | Update movie details or prerequisites | `{ title?, releaseYear?, runtime?, prerequisites?, watched? }` | `200`, `400`, `404`, `409` |
+| `POST` | `/movies` | Create a new movie | `{ title, releaseYear, runtime, prerequisites?, watched?, posterUrl? }` | `201`, `400`, `409` |
+| `PATCH` | `/movies/:id` | Update movie details or prerequisites | `{ title?, releaseYear?, runtime?, prerequisites?, watched?, posterUrl? }` | `200`, `400`, `404`, `409` |
 | `GET` | `/movies/:id/rewatch-order` | Get ordered prerequisite list & stats | Param: `:id` (target movie) | `200`, `400`, `404` |
 | `GET` | `/cinemas` | List all cinemas | None | `200` |
 | `POST` | `/cinemas` | Create a new cinema | `{ name, bundleSizes }` | `201`, `400`, `409` |
 | `GET` | `/cinemas/:id/booking?groupSize=X` | Calculate minimum bundle quote | Query: `groupSize` (1–10,000) | `200`, `400`, `404` |
 | `GET` | `/bookings` | List saved booking plans (newest first) | None | `200` |
 | `POST` | `/bookings` | Calculate and persist a booking plan | `{ cinemaId, groupSize }` | `201`, `400`, `404` |
+
+---
+
+## TMDB Attribution & Metadata
+
+Movie metadata and poster image assets populated by the seed script are sourced from **The Movie Database (TMDB)**.
+
+> [!NOTE]
+> **This product uses the TMDB API but is not endorsed or certified by TMDB.**
+> To learn more or explore movie details, visit [themoviedb.org](https://www.themoviedb.org/). The application includes official TMDB logo attribution in the site footer following TMDB's branding guidelines.
+
+*Note on Avengers: Doomsday (TMDB ID: 1003596)*: As an upcoming 2026 theatrical release, its official final theatrical cut runtime is not yet published or confirmed on TMDB. The 180-minute value in the seed data is a provisional placeholder for assessment preparation planning, satisfying the application's runtime validation constraint (1–300 minutes). All prerequisite relationships remain strictly preserved.
 
 ---
 

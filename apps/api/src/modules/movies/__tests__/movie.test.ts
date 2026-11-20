@@ -86,6 +86,38 @@ describe('Movie API — Phase 3: CRUD, Cycle Detection & Rewatch Order', () => {
       expect(res.body.data.prerequisites).toEqual([ironMan._id.toString()]);
     });
 
+    it('creates a movie with a valid posterUrl', async () => {
+      const res = await request(app).post('/api/movies').send({
+        title: 'Thor',
+        releaseYear: 2011,
+        runtime: 115,
+        posterUrl: 'https://image.tmdb.org/t/p/w500/rzRwTcFvttcN1ZpX2xv4j3tSdJu.jpg',
+      });
+
+      expect(res.status).toBe(201);
+      expect(res.body.data.posterUrl).toBe(
+        'https://image.tmdb.org/t/p/w500/rzRwTcFvttcN1ZpX2xv4j3tSdJu.jpg',
+      );
+
+      const persisted = await Movie.findById(res.body.data._id);
+      expect(persisted?.posterUrl).toBe(
+        'https://image.tmdb.org/t/p/w500/rzRwTcFvttcN1ZpX2xv4j3tSdJu.jpg',
+      );
+    });
+
+    it('rejects invalid posterUrl format (400 Bad Request)', async () => {
+      const res = await request(app).post('/api/movies').send({
+        title: 'Movie With Bad Poster URL',
+        releaseYear: 2024,
+        runtime: 120,
+        posterUrl: 'invalid-url-format',
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
     it('rejects duplicate titles with different casing or surrounding whitespace (409 Conflict)', async () => {
       await request(app).post('/api/movies').send({
         title: 'The Avengers',
@@ -268,6 +300,33 @@ describe('Movie API — Phase 3: CRUD, Cycle Detection & Rewatch Order', () => {
       expect(res.body.data.releaseYear).toBe(2009);
       expect(res.body.data.runtime).toBe(130);
       expect(res.body.data.watched).toBe(true);
+    });
+
+    it('updates posterUrl or clears it when set to null/empty string', async () => {
+      const movie = await Movie.create({
+        title: 'Doctor Strange',
+        normalizedTitle: 'doctor strange',
+        releaseYear: 2016,
+        runtime: 115,
+      });
+
+      // Update posterUrl
+      const resUpdate = await request(app).patch(`/api/movies/${movie._id}`).send({
+        posterUrl: 'https://image.tmdb.org/t/p/w500/uGBVj3bEbCoZbDjjl9wTxcygko1.jpg',
+      });
+
+      expect(resUpdate.status).toBe(200);
+      expect(resUpdate.body.data.posterUrl).toBe(
+        'https://image.tmdb.org/t/p/w500/uGBVj3bEbCoZbDjjl9wTxcygko1.jpg',
+      );
+
+      // Clear posterUrl
+      const resClear = await request(app).patch(`/api/movies/${movie._id}`).send({
+        posterUrl: null,
+      });
+
+      expect(resClear.status).toBe(200);
+      expect(resClear.body.data.posterUrl).toBeUndefined();
     });
 
     it('allows valid prerequisite updates on an existing movie', async () => {
