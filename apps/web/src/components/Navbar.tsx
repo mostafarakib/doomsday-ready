@@ -7,7 +7,7 @@ export function Navbar() {
   const navLinks = [
     { to: '/movies', label: 'Movies', badge: null },
     { to: '/rewatch-plan', label: 'Rewatch Plan', badge: null },
-    { to: '/booking', label: 'Tickets & Booking', badge: 'Phase 8' },
+    { to: '/booking', label: 'Tickets & Booking', badge: null },
   ];
 
   return (

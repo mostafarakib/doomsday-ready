@@ -98,7 +98,7 @@ export default function LandingPage() {
                 title="Group Booking"
                 description="Find the optimal minimum bundle combination for your opening-night group size using dynamic programming."
                 icon="🎟️"
-                badge="Phase 8"
+                active
               />
             </Link>
           </div>
