@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Movie } from '../../types/movie.ts';
 import { Badge } from '../ui/Badge.tsx';
 
@@ -105,7 +106,14 @@ export function MovieCard({ movie, movieMap, onEdit, onToggleWatched }: MovieCar
       </div>
 
       {/* Card Actions */}
-      <div className="pt-3 border-t border-[#262626] flex items-center justify-end">
+      <div className="pt-3 border-t border-[#262626] flex items-center justify-between">
+        <Link
+          to={`/rewatch-plan?target=${movie._id}`}
+          className="text-xs font-medium text-red-400 hover:text-red-300 transition-colors flex items-center gap-1"
+        >
+          <span>📋</span> Plan →
+        </Link>
+
         <button
           type="button"
           onClick={() => onEdit(movie)}

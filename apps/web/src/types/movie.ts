@@ -25,3 +25,11 @@ export interface UpdateMovieInput {
   prerequisites?: string[];
   watched?: boolean;
 }
+
+export interface RewatchPlan {
+  targetMovie: Movie;
+  prerequisites: Movie[];
+  totalPrerequisites: number;
+  watchedPrerequisites: number;
+  unwatchedRuntime: number;
+}

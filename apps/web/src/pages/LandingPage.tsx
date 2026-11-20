@@ -90,7 +90,7 @@ export default function LandingPage() {
                 title="Rewatch Plan"
                 description="Get the full prerequisite chain for any target movie in topological order, with remaining runtime calculations."
                 icon="📋"
-                badge="Phase 7"
+                active
               />
             </Link>
             <Link to="/booking" className="block group">

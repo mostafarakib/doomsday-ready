@@ -1,5 +1,5 @@
 import { apiRequest } from './client.ts';
-import { Movie, CreateMovieInput, UpdateMovieInput } from '../types/movie.ts';
+import { Movie, CreateMovieInput, UpdateMovieInput, RewatchPlan } from '../types/movie.ts';
 
 export const moviesApi = {
   getMovies: (): Promise<Movie[]> => {
@@ -18,5 +18,9 @@ export const moviesApi = {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
+  },
+
+  getRewatchOrder: (id: string): Promise<RewatchPlan> => {
+    return apiRequest<RewatchPlan>(`/api/movies/${id}/rewatch-order`);
   },
 };
