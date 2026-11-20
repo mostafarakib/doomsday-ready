@@ -17,12 +17,12 @@ export class AppError extends Error {
 }
 
 /**
- * Centralised error handler.  Express identifies this as an error middleware
+ * Centralised error handler. Express identifies this as an error middleware
  * because it has four parameters.
  *
  * Rules enforced here:
  * - AppError instances are forwarded with their status code and error code intact.
- * - Mongoose duplicate-key errors (11000) are translated into a 409.
+ * - Mongoose duplicate-key errors (11000) are translated into a 409 with appropriate code.
  * - Everything else becomes a generic 500 in production so internal details
  *   are never exposed to callers.
  */
@@ -42,9 +42,16 @@ export function errorHandler(
 
   // Mongoose duplicate key
   if (isMongooseDuplicateKeyError(err)) {
+    const errorObj = err as { keyPattern?: Record<string, unknown> };
+    const code = errorObj.keyPattern?.normalizedTitle ? 'DUPLICATE_TITLE' : 'DUPLICATE';
+    const message =
+      code === 'DUPLICATE_TITLE'
+        ? 'A movie with this title already exists.'
+        : 'A resource with that value already exists.';
+
     res.status(409).json({
       success: false,
-      error: { code: 'DUPLICATE', message: 'A resource with that value already exists.' },
+      error: { code, message },
     });
     return;
   }
