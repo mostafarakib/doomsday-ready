@@ -1,0 +1,53 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.dev
+    container_name: doomsday-api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - CLIENT_URL=http://localhost:5173
+    env_file:
+      - apps/api/.env
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+      - /app/node_modules
+      - /app/apps/api/node_modules
+      - /app/apps/web/node_modules
+    networks:
+      - doomsday-network
+    mem_limit: 768m
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile.dev
+    container_name: doomsday-web
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=
+      - VITE_PROXY_TARGET=http://api:5000
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./apps/web/src:/app/apps/web/src
+      - ./apps/web/public:/app/apps/web/public
+      - ./apps/web/index.html:/app/apps/web/index.html
+      - ./apps/web/vite.config.ts:/app/apps/web/vite.config.ts
+      - /app/node_modules
+      - /app/apps/api/node_modules
+      - /app/apps/web/node_modules
+    depends_on:
+      - api
+    networks:
+      - doomsday-network
+    mem_limit: 768m
+
+networks:
+  doomsday-network:
+    driver: bridge

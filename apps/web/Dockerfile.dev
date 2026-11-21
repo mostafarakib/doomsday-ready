@@ -1,0 +1,18 @@
+FROM node:24-alpine
+
+WORKDIR /app
+
+# Copy root manifests and workspace package definitions for npm workspaces
+COPY package.json package-lock.json ./
+COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
+
+# Clean install all dependencies based on root package-lock.json
+RUN npm ci
+
+# Copy Web application source and configuration
+COPY apps/web ./apps/web
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "-w", "apps/web"]
