@@ -72,6 +72,9 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
       },
     });
   } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw err;
+    }
     throw new ApiError(
       0,
       'NETWORK_ERROR',

@@ -2,22 +2,18 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '../components/Layout.tsx';
 import { Button } from '../components/ui/Button.tsx';
-import { apiRequest } from '../api/client.ts';
+import { healthApi } from '../api/health.ts';
+import { HealthData } from '../types/health.ts';
 
 type HealthStatus = 'loading' | 'ok' | 'error';
-
-interface HealthData {
-  status: string;
-  timestamp: string;
-  database: string;
-}
 
 export default function LandingPage() {
   const [health, setHealth] = useState<HealthStatus>('loading');
   const [healthData, setHealthData] = useState<HealthData | null>(null);
 
   useEffect(() => {
-    apiRequest<HealthData>('/api/health')
+    healthApi
+      .checkHealth()
       .then((data) => {
         setHealthData(data);
         setHealth('ok');
