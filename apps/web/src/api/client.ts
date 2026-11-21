@@ -23,13 +23,48 @@ export class ApiError extends Error {
 }
 
 /**
+ * Resolves an endpoint path against the configured API base URL (VITE_API_URL).
+ * Standardizes on VITE_API_URL as the sole environment variable.
+ * Handles:
+ * - base URL with or without trailing slash (e.g. 'https://api.render.com/' vs 'https://api.render.com')
+ * - base URL with or without '/api' suffix (e.g. 'https://api.render.com/api' vs 'https://api.render.com')
+ * - existing API endpoints beginning with '/api/' without producing duplicate '/api/api'
+ * - falls back to relative endpoint when VITE_API_URL is absent (for local Vite dev proxy)
+ */
+export function buildApiUrl(endpoint: string, baseUrlOverride?: string): string {
+  const rawBase = (
+    baseUrlOverride !== undefined
+      ? baseUrlOverride
+      : (import.meta.env.VITE_API_URL as string | undefined) || ''
+  ).trim();
+
+  if (!rawBase) {
+    return endpoint;
+  }
+
+  const base = rawBase.replace(/\/+$/, '');
+  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  // If base already ends with /api and path starts with /api/, avoid duplicate /api/api
+  if (base.endsWith('/api') && path.startsWith('/api/')) {
+    return `${base}${path.slice(4)}`;
+  }
+  if (base.endsWith('/api') && path === '/api') {
+    return base;
+  }
+
+  return `${base}${path}`;
+}
+
+/**
  * Standard API request wrapper that parses JSON envelopes and handles errors consistently.
  */
 export async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const url = buildApiUrl(endpoint);
   let response: Response;
 
   try {
-    response = await fetch(endpoint, {
+    response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',

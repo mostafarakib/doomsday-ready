@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '../components/Layout.tsx';
 import { Button } from '../components/ui/Button.tsx';
+import { apiRequest } from '../api/client.ts';
 
 type HealthStatus = 'loading' | 'ok' | 'error';
 
@@ -16,13 +17,9 @@ export default function LandingPage() {
   const [healthData, setHealthData] = useState<HealthData | null>(null);
 
   useEffect(() => {
-    fetch('/api/health')
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json() as Promise<{ success: boolean; data: HealthData }>;
-      })
-      .then((body) => {
-        setHealthData(body.data);
+    apiRequest<HealthData>('/api/health')
+      .then((data) => {
+        setHealthData(data);
         setHealth('ok');
       })
       .catch(() => {

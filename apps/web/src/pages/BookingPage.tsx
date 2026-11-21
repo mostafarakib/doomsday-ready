@@ -259,10 +259,11 @@ export default function BookingPage() {
                         setGroupSizeInput(size.toString());
                         setQuote(null);
                       }}
-                      className={`text-xs px-2.5 py-1 rounded border transition-colors cursor-pointer ${groupSizeInput === size.toString()
-                        ? 'bg-[#2a2a2a] text-white border-[#444444]'
-                        : 'bg-[#181818] text-[#888888] border-[#262626] hover:text-[#f5f5f5] hover:bg-[#202020]'
-                        }`}
+                      className={`text-xs px-2.5 py-1 rounded border transition-colors cursor-pointer ${
+                        groupSizeInput === size.toString()
+                          ? 'bg-[#2a2a2a] text-white border-[#444444]'
+                          : 'bg-[#181818] text-[#888888] border-[#262626] hover:text-[#f5f5f5] hover:bg-[#202020]'
+                      }`}
                     >
                       {size}
                     </button>
